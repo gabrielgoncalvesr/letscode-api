@@ -25,7 +25,7 @@ public class RankingService {
 		int totalQuizzes = quizList.size();
 		int totalHits = quizList.stream().filter(x -> x.getCorrect() != null && x.getCorrect()).toList().size();
 
-		double score = (totalHits * 100) / totalQuizzes;
+		double score = totalQuizzes * ((totalHits * 100) / totalQuizzes);
 
 		RankingEntity ranking = rankingRepository.getUserRanking(AuthHelper.getUserLogged());
 		if (ranking == null) {
