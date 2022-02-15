@@ -1,7 +1,7 @@
 package letscode.api.model.request;
 
 public class AuthModelRequest {
-	
+
 	private String email;
 
 	private String password;
@@ -21,5 +21,4 @@ public class AuthModelRequest {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
 }

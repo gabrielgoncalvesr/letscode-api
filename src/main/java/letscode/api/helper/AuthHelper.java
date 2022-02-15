@@ -10,17 +10,18 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 
 public class AuthHelper {
+
 	public static JWTClaimsSet getClaims(String token) {
 		try {
 			JWT jwt = JWTParser.parse(token);
 
 			return jwt.getJWTClaimsSet();
-
 		} catch (ParseException e) {
 			return null;
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static String getUserLogged() {
 		try {
 			HashMap<String, Object> details = (HashMap<String, Object>) SecurityContextHolder.getContext()
@@ -31,7 +32,6 @@ public class AuthHelper {
 			}
 
 			return (String) details.get("userId");
-
 		} catch (Exception e) {
 			return null;
 		}

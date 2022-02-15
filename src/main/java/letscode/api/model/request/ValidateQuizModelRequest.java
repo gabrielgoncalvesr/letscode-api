@@ -11,5 +11,4 @@ public class ValidateQuizModelRequest {
 	public void setOption(String option) {
 		this.option = option;
 	}
-
 }

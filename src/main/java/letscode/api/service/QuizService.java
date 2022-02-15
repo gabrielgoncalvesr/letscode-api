@@ -1,8 +1,7 @@
 package letscode.api.service;
 
 import java.util.Date;
-
-import javax.persistence.TypedQuery;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,113 +16,112 @@ import letscode.api.helper.AuthHelper;
 import letscode.api.model.response.MovieModelResponse;
 import letscode.api.model.response.QuizModelResponse;
 import letscode.api.model.response.QuizMovieModelResponse;
+import letscode.api.repository.MatchRepository;
+import letscode.api.repository.MovieRepository;
 import letscode.api.repository.QuizRepository;
 
 @Service
 public class QuizService {
 
 	@Autowired
+	private IMDBExternal apiExternal;
+
+	@Autowired
 	private QuizRepository quizRepository;
 
 	@Autowired
-	private MovieService movieService;
+	private MatchRepository matchRepository;
 
 	@Autowired
-	private MatchService matchService;
-
-	@Autowired
-	private IMDBExternal apiExternal;
+	private MovieRepository movieRepository;
 
 	public QuizEntity getQuizById(String quizId) {
-		TypedQuery<QuizEntity> query = quizRepository
-				.query("SELECT q FROM quiz q WHERE q.quizId = :quizId AND q.userId = :userId");
-		query.setParameter("quizId", quizId);
-		query.setParameter("userId", AuthHelper.getUserLogged());
-
-		QuizEntity quiz = query.getResultList().stream().findFirst().orElse(null);
-
+		QuizEntity quiz = quizRepository.getQuizById(quizId);
 		if (quiz == null) {
-			throw new ResponseException(HttpStatus.BAD_REQUEST, "quiz.not_found");
+			throw new ResponseException(HttpStatus.NOT_FOUND, "quiz.not_found");
 		}
 
 		return quiz;
 	}
 
-	public boolean validateQuiz(String quizId, String option) {
-		MatchEntity match = matchService.getActiveMatch();
-
-		if (match.getErrorAttempts() > 3) {
-			throw new ResponseException(HttpStatus.BAD_REQUEST, "quiz.error_attempts_exceeded");
+	public QuizEntity getActiveQuiz() {
+		getActiveMatch();
+		
+		QuizEntity quiz = quizRepository.getActiveQuiz();
+		if (quiz == null) {
+			throw new ResponseException(HttpStatus.BAD_REQUEST, "quiz.quiz_not_started");
 		}
 
-		QuizEntity quiz = getQuizById(quizId);
+		return quiz;
+	}
 
-		if (quiz.getAnswered()) {
-			throw new ResponseException(HttpStatus.BAD_REQUEST, "quiz.already_answered");
+	public MatchEntity getActiveMatch() {
+		MatchEntity match = matchRepository.getActiveMatch();
+		if (match == null) {
+			throw new ResponseException(HttpStatus.BAD_REQUEST, "match.none_started");
 		}
+
+		return match;
+	}
+
+	public boolean validateQuiz(String option) {
+		QuizEntity quiz = getActiveQuiz();
 
 		boolean correctAnswer = quiz.getCorrectOption().equals(option);
 
-		quiz.setCorrect(correctAnswer);
 		quiz.setAnswered(true);
+		quiz.setCorrect(correctAnswer);
 		quiz.setUpdateDate(new Date());
 
 		quizRepository.save(quiz);
-
-		if (correctAnswer) {
-			match.setScore(match.getScore() + 1);
-		} else {
-			match.setErrorAttempts(match.getScore() + 1);
-
-			if (match.getScore() == 3) {
-				matchService.endMatch();
-
-				throw new ResponseException(HttpStatus.BAD_REQUEST, "quiz.game_ended_by_error_attempt");
-			}
-		}
-
-		matchService.updateMatch(match);
 
 		return correctAnswer;
 	}
 
 	public QuizModelResponse nextQuiz() {
-		MatchEntity match = matchService.getActiveMatch();
+		MatchEntity match = getActiveMatch();
 
-		TypedQuery<QuizEntity> query = quizRepository
-				.query("SELECT q FROM quiz q WHERE q.answered IS NULL AND q.userId = :userId");
-		query.setParameter("userId", AuthHelper.getUserLogged());
-
-		QuizEntity quiz = query.getResultList().stream().findFirst().orElse(null);
-
+		QuizEntity quiz = quizRepository.getActiveQuiz();
 		if (quiz != null) {
 			throw new ResponseException(HttpStatus.BAD_REQUEST, "quiz.previous_unanswered");
 		}
 
-		MovieEntity firstRandomMovie = movieService.getRandomMovie();
-		MovieEntity secondRandomMovie = movieService.getRandomMovie();
+		List<MovieEntity> movieSet = movieRepository.getMovieSet();
 
-		MovieModelResponse firstMovie = apiExternal.getMovieById(firstRandomMovie.getImdbId());
-		MovieModelResponse secondMovie = apiExternal.getMovieById(secondRandomMovie.getImdbId());
+		QuizEntity quizSet = quizRepository.searchMovieSet(movieSet.get(0).getMovieId(), movieSet.get(1).getMovieId());
+
+		if (quizSet != null) {
+			for (int i = 0; i < 5; i++) {
+				movieSet = movieRepository.getMovieSet();
+
+				quizSet = quizRepository.searchMovieSet(movieSet.get(0).getMovieId(), movieSet.get(1).getMovieId());
+				if (quizSet == null) {
+					break;
+				}
+			}
+		}
+
+		MovieModelResponse firstMovie = apiExternal.getMovieById(movieSet.get(0).getImdbId());
+		MovieModelResponse secondMovie = apiExternal.getMovieById(movieSet.get(1).getImdbId());
 
 		double firstMovieRating = Double.parseDouble(firstMovie.getImdbRating())
 				* Double.valueOf(firstMovie.getImdbVotes().replace(",", ""));
 		double secondMovieRating = Double.parseDouble(secondMovie.getImdbRating())
 				* Double.valueOf(secondMovie.getImdbVotes().replace(",", ""));
 
-		String correctOption = firstMovieRating > secondMovieRating ? firstRandomMovie.getMovieId()
-				: secondRandomMovie.getMovieId();
+		String correctOption = firstMovieRating > secondMovieRating ? movieSet.get(0).getMovieId()
+				: movieSet.get(1).getMovieId();
 
-		QuizEntity newQuiz = new QuizEntity(firstRandomMovie.getMovieId(), secondRandomMovie.getMovieId(),
+		QuizEntity newQuiz = new QuizEntity(movieSet.get(0).getMovieId(), movieSet.get(1).getMovieId(),
 				AuthHelper.getUserLogged(), match.getMatchId(), correctOption);
 
 		newQuiz = quizRepository.save(newQuiz);
 
 		var firstMovieModel = QuizMovieModelResponse.parse(firstMovie);
-		firstMovieModel.setMovieId(firstRandomMovie.getMovieId());
+		firstMovieModel.setMovieId(movieSet.get(0).getMovieId());
 
 		var secondMovieModel = QuizMovieModelResponse.parse(secondMovie);
-		secondMovieModel.setMovieId(secondRandomMovie.getMovieId());
+		secondMovieModel.setMovieId(movieSet.get(1).getMovieId());
 
 		return new QuizModelResponse(newQuiz.getQuizId(), firstMovieModel, secondMovieModel);
 	}

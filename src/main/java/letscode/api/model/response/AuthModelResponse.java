@@ -1,11 +1,11 @@
 package letscode.api.model.response;
 
 public class AuthModelResponse {
-	
+
 	private String email;
 
 	private String token;
-	
+
 	public AuthModelResponse(String email, String token) {
 		this.email = email;
 		this.token = token;
@@ -18,7 +18,7 @@ public class AuthModelResponse {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	
+
 	public String getToken() {
 		return token;
 	}
@@ -26,5 +26,4 @@ public class AuthModelResponse {
 	public void setToken(String token) {
 		this.token = token;
 	}
-	
 }

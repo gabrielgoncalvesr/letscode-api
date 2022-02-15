@@ -27,5 +27,4 @@ public class MovieSearchResponse {
 	public void setMovies(List<MovieReducedSearchResponse> movies) {
 		this.movies = movies;
 	}
-
 }

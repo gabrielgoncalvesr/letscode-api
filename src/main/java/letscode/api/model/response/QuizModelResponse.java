@@ -37,5 +37,4 @@ public class QuizModelResponse {
 	public void setSecondMovie(QuizMovieModelResponse secondMovie) {
 		this.secondMovie = secondMovie;
 	}
-
 }

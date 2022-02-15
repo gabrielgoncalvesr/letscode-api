@@ -194,5 +194,4 @@ public class MovieModelResponse {
 	public void setDVD(String dVD) {
 		DVD = dVD;
 	}
-
 }

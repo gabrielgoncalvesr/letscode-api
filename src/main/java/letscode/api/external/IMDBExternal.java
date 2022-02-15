@@ -31,5 +31,4 @@ public class IMDBExternal extends BaseExternal {
 
 		return (MovieModelResponse) GET(apiHost + queryString, MovieModelResponse.class);
 	}
-
 }

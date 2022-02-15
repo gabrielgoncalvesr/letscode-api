@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import letscode.api.data.UserDetailsData;
 import letscode.api.entity.UserEntity;
+import letscode.api.model.ErrorModel;
 import letscode.api.model.response.AuthModelResponse;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -45,10 +47,26 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 			return authenticationManager.authenticate(
 					new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), new ArrayList<>()));
-		} catch (IOException e) {
-			// throw new UnauthorizedException("user.auth_error", "error to authenticate
-			// user");
-			throw new RuntimeException("failed");
+		} catch (IOException | AuthenticationException ae) {
+			try {
+				ErrorModel errorModel = new ErrorModel("user.invalid_authentication");
+
+				ObjectMapper mapper = new ObjectMapper();
+
+				var responseAsString = mapper.writeValueAsString(errorModel);
+
+				PrintWriter out = response.getWriter();
+
+				response.setStatus(HttpStatus.UNAUTHORIZED.value());
+				response.setContentType("application/json");
+				response.setCharacterEncoding("UTF-8");
+
+				out.print(responseAsString);
+				out.flush();
+			} catch (IOException ioe) {
+			}
+
+			return null;
 		}
 	}
 

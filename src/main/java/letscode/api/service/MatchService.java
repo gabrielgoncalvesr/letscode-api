@@ -2,8 +2,6 @@ package letscode.api.service;
 
 import java.util.Date;
 
-import javax.persistence.TypedQuery;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,82 +18,65 @@ public class MatchService {
 	@Autowired
 	private MatchRepository matchRepository;
 
-	@Autowired
-	private RankingService rankingService;
-
 	public MatchEntity getMatchById(String matchId) {
-		TypedQuery<MatchEntity> query = matchRepository.query("SELECT m FROM match m WHERE m.matchId = :matchId");
-		query.setParameter("matchId", matchId);
-		
-		MatchEntity match = query.getResultList().stream().findFirst().orElse(null);
-
+		MatchEntity match = matchRepository.getUserMatchById(matchId);
 		if (match == null) {
 			throw new ResponseException(HttpStatus.NOT_FOUND, "match.not_found");
 		}
-		
+
+		return match;
+	}
+
+	public MatchEntity getActiveMatch() {
+		MatchEntity match = matchRepository.getActiveMatch();
+		if (match == null) {
+			throw new ResponseException(HttpStatus.BAD_REQUEST, "match.none_started");
+		}
+
 		return match;
 	}
 
 	public MatchEntity startMatch() {
-		TypedQuery<MatchEntity> query = matchRepository
-				.query("SELECT m FROM match m WHERE m.status = :status AND m.userId = :userId");
-		query.setParameter("status", MatchStatusEnum.STARTED);
-		query.setParameter("userId", AuthHelper.getUserLogged());
-
-		MatchEntity match = query.getResultList().stream().findFirst().orElse(null);
-
+		MatchEntity match = matchRepository.getActiveMatch();
 		if (match != null) {
 			throw new ResponseException(HttpStatus.BAD_REQUEST, "match.already_started");
 		}
 
 		MatchEntity newMatch = new MatchEntity(AuthHelper.getUserLogged());
-
 		matchRepository.save(newMatch);
 
 		return newMatch;
 	}
 
 	public MatchEntity endMatch() {
-		TypedQuery<MatchEntity> query = matchRepository
-				.query("SELECT m FROM match m WHERE m.status = :status AND m.userId = :userId");
-		query.setParameter("status", MatchStatusEnum.STARTED);
-		query.setParameter("userId", AuthHelper.getUserLogged());
-
-		MatchEntity match = query.getResultList().stream().findFirst().orElse(null);
-
-		if (match == null) {
-			throw new ResponseException(HttpStatus.BAD_REQUEST, "match.none_started");
-		}
+		MatchEntity match = getActiveMatch();
 
 		match.setEndDate(new Date());
 		match.setUpdateDate(new Date());
 		match.setStatus(MatchStatusEnum.ENDED);
-		
-		matchRepository.save(match);
 
-		// rankingService.updateUserRanking();
+		matchRepository.save(match);
 
 		return match;
 	}
 
-	public MatchEntity getActiveMatch() {
-		TypedQuery<MatchEntity> query = matchRepository
-				.query("SELECT m FROM match m WHERE m.status = :status AND m.userId = :userId");
-		query.setParameter("status", MatchStatusEnum.STARTED);
-		query.setParameter("userId", AuthHelper.getUserLogged());
+	public MatchEntity updateMatchScore(boolean correctAnswer) {
+		MatchEntity match = getActiveMatch();
 
-		MatchEntity match = query.getResultList().stream().findFirst().orElse(null);
-
-		if (match == null) {
-			throw new ResponseException(HttpStatus.BAD_REQUEST, "match.none_started");
+		if (correctAnswer) {
+			match.setScore(match.getScore() + 1);
+		} else {
+			match.setErrorAttempts(match.getScore() + 1);
 		}
 
-		return match;
-	}
-	
-	public MatchEntity updateMatch(MatchEntity match) {
 		match.setUpdateDate(new Date());
 		matchRepository.save(match);
+
+		if (match.getErrorAttempts() == 3) {
+			endMatch();
+
+			throw new ResponseException(HttpStatus.BAD_REQUEST, "quiz.game_ended_by_error_attempt");
+		}
 
 		return match;
 	}

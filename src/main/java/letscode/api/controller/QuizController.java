@@ -3,38 +3,51 @@ package letscode.api.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import letscode.api.entity.QuizEntity;
 import letscode.api.exception.ResponseException;
 import letscode.api.model.request.ValidateQuizModelRequest;
 import letscode.api.model.response.QuizModelResponse;
+import letscode.api.service.MatchService;
 import letscode.api.service.QuizService;
 
 @RestController
-@RequestMapping("/quizes")
+@RequestMapping("/quizzes")
 public class QuizController {
 
 	@Autowired
 	private QuizService quizService;
 
-	@PostMapping
-	public ResponseEntity<QuizModelResponse> nextQuiz() {
-		QuizModelResponse match = quizService.nextQuiz();
+	@Autowired
+	private MatchService matchService;
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(match);
+	@GetMapping
+	public ResponseEntity<QuizEntity> getActiveQuiz() {
+		var quiz = quizService.getActiveQuiz();
+
+		return ResponseEntity.ok(quiz);
 	}
 
-	@PutMapping("/{quizId}")
-	public ResponseEntity<?> validateQuiz(@PathVariable("quizId") String quizId,
-			@RequestBody ValidateQuizModelRequest model) {
-		boolean validated = quizService.validateQuiz(quizId, model.getOption());
+	@PostMapping
+	public ResponseEntity<QuizModelResponse> nextQuiz() {
+		var quiz = quizService.nextQuiz();
 
-		if (!validated) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(quiz);
+	}
+
+	@PutMapping
+	public ResponseEntity<?> validateQuiz(@RequestBody ValidateQuizModelRequest model) {
+		boolean correctAnswer = quizService.validateQuiz(model.getOption());
+
+		matchService.updateMatchScore(correctAnswer);
+
+		if (!correctAnswer) {
 			throw new ResponseException(HttpStatus.BAD_REQUEST, "quiz.incorrect_answer");
 		}
 

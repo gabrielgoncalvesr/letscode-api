@@ -9,18 +9,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import letscode.api.entity.RankingEntity;
-import letscode.api.service.RankingService;
+import letscode.api.repository.RankingRepository;
 
 @RestController
 @RequestMapping("/rankings")
 public class RankingController {
 
 	@Autowired
-	private RankingService rankingService;
+	private RankingRepository rankingRepository;
 
 	@GetMapping
-	public ResponseEntity<List<RankingEntity>> getMatchById() {
-		List<RankingEntity> rankingList = rankingService.getRanking();
+	public ResponseEntity<List<RankingEntity>> getRankingList() {
+		var rankingList = rankingRepository.getRankingList();
 
 		return ResponseEntity.ok(rankingList);
 	}

@@ -141,5 +141,4 @@ public class MatchEntity implements Serializable {
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
-
 }

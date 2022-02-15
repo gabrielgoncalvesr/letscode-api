@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.TypedQuery;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,12 +15,12 @@ import letscode.api.repository.MovieRepository;
 
 @Service
 public class MovieService {
+	
+	@Autowired
+	private IMDBExternal apiExternal;
 
 	@Autowired
 	private MovieRepository movieRepository;
-
-	@Autowired
-	private IMDBExternal apiExternal;
 
 	@PostConstruct
 	private Object feedMovies() {
@@ -41,11 +40,4 @@ public class MovieService {
 
 		return moviesList;
 	}
-
-	public MovieEntity getRandomMovie() {
-		TypedQuery<MovieEntity> query = movieRepository.query("SELECT m FROM movie m ORDER BY RAND()");
-
-		return query.getResultList().stream().findFirst().orElse(null);
-	}
-
 }

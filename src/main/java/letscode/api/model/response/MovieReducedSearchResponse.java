@@ -3,7 +3,7 @@ package letscode.api.model.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MovieReducedSearchResponse {
-	
+
 	@JsonProperty("Title")
 	private String title;
 
@@ -25,5 +25,4 @@ public class MovieReducedSearchResponse {
 	public void setImdbId(String imdbId) {
 		this.imdbId = imdbId;
 	}
-	
 }

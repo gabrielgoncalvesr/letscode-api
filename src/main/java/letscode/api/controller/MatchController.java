@@ -12,50 +12,52 @@ import org.springframework.web.bind.annotation.RestController;
 
 import letscode.api.entity.MatchEntity;
 import letscode.api.service.MatchService;
-import letscode.api.service.MovieService;
+import letscode.api.service.RankingService;
 
 @RestController
 @RequestMapping("/matches")
 public class MatchController {
 
-	@Autowired
+	/*
+	 * @Autowired private MatchService matchService;
+	 * 
+	 * @Autowired private RankingService rankingService;
+	 */
 	private MatchService matchService;
-
-	@Autowired
-	private MovieService movieService;
+	
+	private RankingService rankingService;
+	
+	public MatchController(MatchService matchService, RankingService rankingService) {
+		this.matchService = matchService;
+		this.rankingService = rankingService;
+	}
 
 	@GetMapping("/{matchId}")
 	public ResponseEntity<MatchEntity> getMatchById(@PathVariable("matchId") String matchId) {
-		MatchEntity match = matchService.getMatchById(matchId);
-
+		var match = matchService.getMatchById(matchId);
+		
 		return ResponseEntity.ok(match);
 	}
 
 	@GetMapping("/active")
 	public ResponseEntity<MatchEntity> getActiveMatch() {
-		MatchEntity match = matchService.getActiveMatch();
-
+		var match = matchService.getActiveMatch();
+		
 		return ResponseEntity.ok(match);
 	}
 
 	@PostMapping
 	public ResponseEntity<MatchEntity> startMatch() {
-		MatchEntity match = matchService.startMatch();
-
+		var match = matchService.startMatch();
+		
 		return ResponseEntity.status(HttpStatus.CREATED).body(match);
 	}
 
 	@PutMapping
 	public ResponseEntity<MatchEntity> endMatch() {
 		MatchEntity match = matchService.endMatch();
+		rankingService.updateUserRanking(match.getMatchId());
 
 		return ResponseEntity.ok(match);
 	}
-
-//	@GetMapping("/movie")
-//	public ResponseEntity<?> movie() {
-//		var match = movieService.feedMovies();
-//
-//		return ResponseEntity.ok(match);
-//	}
 }

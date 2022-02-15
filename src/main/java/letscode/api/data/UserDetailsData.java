@@ -15,8 +15,8 @@ public class UserDetailsData implements UserDetails {
 
 	private final Optional<UserEntity> user;
 
-	public UserDetailsData(Optional<UserEntity> user) {
-		this.user = user;
+	public UserDetailsData(UserEntity user) {
+		this.user = Optional.ofNullable(user);
 	}
 
 	@Override

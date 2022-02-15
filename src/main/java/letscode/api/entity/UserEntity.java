@@ -1,15 +1,11 @@
 package letscode.api.entity;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -27,12 +23,6 @@ public class UserEntity implements Serializable {
 	@GenericGenerator(name = "system-uuid", strategy = "uuid")
 	@Column(name = "id", updatable = false, unique = true, nullable = false)
 	private String userId;
-
-//	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-//	private List<MatchEntity> matches;
-//
-//	@OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
-//	private RankingEntity ranking;
 
 	@Column(nullable = false)
 	private String name;

@@ -1,38 +1,37 @@
 package letscode.api.service;
 
 import java.util.Date;
-import java.util.List;
-
-import javax.persistence.TypedQuery;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import letscode.api.entity.RankingEntity;
 import letscode.api.helper.AuthHelper;
+import letscode.api.repository.QuizRepository;
 import letscode.api.repository.RankingRepository;
 
 @Service
 public class RankingService {
 
 	@Autowired
+	private QuizRepository quizRepository;
+
+	@Autowired
 	private RankingRepository rankingRepository;
 
-	public RankingEntity getUserRanking(String userId) {
-		TypedQuery<RankingEntity> query = rankingRepository.query("SELECT r FROM ranking r WHERE r.userId = :userId");
-		query.setParameter("userId", userId);
+	public RankingEntity updateUserRanking(String matchId) {
+		var quizList = quizRepository.getQuizzesFromMatch(matchId);
 
-		return query.getResultList().stream().findFirst().orElse(null);
-	}
+		int totalQuizzes = quizList.size();
+		int totalHits = quizList.stream().filter(x -> x.getCorrect()).toList().size();
 
-	public RankingEntity updateUserRanking(int totalHits, int totalQuizzes) {
 		double score = (totalHits * 100) / totalQuizzes;
-		
-		RankingEntity ranking = getUserRanking(AuthHelper.getUserLogged());
+
+		RankingEntity ranking = rankingRepository.getUserRanking(AuthHelper.getUserLogged());
 		if (ranking == null) {
 			ranking = new RankingEntity(AuthHelper.getUserLogged());
 		} else {
-			if(score > ranking.getScore()) {
+			if (score > ranking.getScore()) {
 				ranking.setScore(score);
 				ranking.setUpdateDate(new Date());
 			}
@@ -42,11 +41,4 @@ public class RankingService {
 
 		return ranking;
 	}
-
-	public List<RankingEntity> getRanking() {
-		TypedQuery<RankingEntity> query = rankingRepository.query("SELECT r FROM ranking r ORDER BY r.score DESC").setMaxResults(20);
-		
-		return query.getResultList();
-	}
-
 }

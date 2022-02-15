@@ -1,62 +1,43 @@
 package letscode.api.model.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
-
 public class QuizMovieModelResponse {
 
-	@JsonProperty("movieId")
 	private String movieId;
 
-	@JsonProperty("title")
 	private String title;
 
-	@JsonProperty("year")
 	private String year;
 
-	@JsonProperty("released")
 	private String released;
 
-	@JsonProperty("runtime")
 	private String runtime;
 
-	@JsonProperty("genre")
 	private String genre;
 
-	@JsonProperty("director")
 	private String director;
 
-	@JsonProperty("writer")
 	private String writer;
 
-	@JsonProperty("actors")
 	private String actors;
 
-	@JsonProperty("plot")
 	private String plot;
 
-	@JsonProperty("language")
 	private String language;
 
-	@JsonProperty("country")
 	private String country;
 
-	@JsonProperty("poster")
 	private String poster;
 
-	@JsonProperty(value = "imdbRating", access = Access.WRITE_ONLY)
+	// @JsonProperty(value = "imdbRating", access = Access.WRITE_ONLY)
 	private String imdbRating;
 
-	@JsonProperty(value = "imdbVotes", access = Access.WRITE_ONLY)
+	// @JsonProperty(value = "imdbVotes", access = Access.WRITE_ONLY)
 	private String imdbVotes;
 
-	@JsonProperty("imdbID")
 	private String imdbId;
 
-	@JsonProperty("boxOffice")
 	private String boxOffice;
 
-	@JsonProperty("DVD")
 	private String DVD;
 
 	public String getMovieId() {
@@ -226,5 +207,4 @@ public class QuizMovieModelResponse {
 
 		return quizModel;
 	}
-
 }

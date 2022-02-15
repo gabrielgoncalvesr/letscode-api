@@ -53,12 +53,10 @@ public class JWTValidationFilter extends BasicAuthenticationFilter {
 		SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
 		JWTClaimsSet claims = AuthHelper.getClaims(token.replaceAll("Bearer ", ""));
-
 		String userId = (String) claims.getClaim("userId");
 
-		SecurityContext sec = SecurityContextHolder.getContext();
-
-		AbstractAuthenticationToken auth = (AbstractAuthenticationToken) sec.getAuthentication();
+		SecurityContext securityContext = SecurityContextHolder.getContext();
+		AbstractAuthenticationToken auth = (AbstractAuthenticationToken) securityContext.getAuthentication();
 
 		HashMap<String, Object> details = new HashMap<String, Object>();
 		details.put("userId", userId);

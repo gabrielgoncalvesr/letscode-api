@@ -26,5 +26,4 @@ public class ResponseException extends RuntimeException {
 	public HttpStatus getHttpStatus() {
 		return httpStatus;
 	}
-
 }

@@ -1,7 +1,8 @@
 package letscode.api.repository;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Repository;
@@ -12,20 +13,24 @@ import letscode.api.entity.RankingEntity;
 @Transactional
 public class RankingRepository extends BaseRepository<RankingEntity> {
 
-	public RankingRepository(EntityManager em) {
-		super(em);
-	}
-
-	public RankingEntity getById(String matchId) {
-		return em.find(RankingEntity.class, matchId);
+	public RankingRepository() {
+		super(RankingEntity.class);
 	}
 
 	public RankingEntity save(RankingEntity ranking) {
 		return persist(ranking.getRankingId(), ranking);
 	}
 
-	public TypedQuery<RankingEntity> query(String query) {
-		return em.createQuery(query, RankingEntity.class);
+	public RankingEntity getUserRanking(String userId) {
+		var query = query("SELECT r FROM ranking r WHERE r.userId = :userId");
+		query.setParameter("userId", userId);
+
+		return getUnique(query);
 	}
 
+	public List<RankingEntity> getRankingList() {
+		var query = query("SELECT r FROM ranking r ORDER BY r.score DESC").setMaxResults(20);
+
+		return query.getResultList();
+	}
 }
