@@ -16,6 +16,7 @@ import letscode.api.model.request.ValidateQuizModelRequest;
 import letscode.api.model.response.QuizModelResponse;
 import letscode.api.service.MatchService;
 import letscode.api.service.QuizService;
+import letscode.api.service.RankingService;
 
 @RestController
 @RequestMapping("/quizzes")
@@ -26,6 +27,9 @@ public class QuizController {
 
 	@Autowired
 	private MatchService matchService;
+	
+	@Autowired
+	private RankingService rankingService;
 
 	@GetMapping
 	public ResponseEntity<QuizEntity> getActiveQuiz() {
@@ -45,7 +49,14 @@ public class QuizController {
 	public ResponseEntity<?> validateQuiz(@RequestBody ValidateQuizModelRequest model) {
 		boolean correctAnswer = quizService.validateQuiz(model.getOption());
 
-		matchService.updateMatchScore(correctAnswer);
+		var match = matchService.updateMatchScore(correctAnswer);
+		
+		if (match.getErrorAttempts() == 3) {
+			matchService.endMatch();
+			rankingService.updateUserRanking(match.getMatchId());
+
+			throw new ResponseException(HttpStatus.BAD_REQUEST, "quiz.game_ended_by_error_attempt");
+		}
 
 		if (!correctAnswer) {
 			throw new ResponseException(HttpStatus.BAD_REQUEST, "quiz.incorrect_answer");

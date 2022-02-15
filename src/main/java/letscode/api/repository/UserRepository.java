@@ -1,6 +1,7 @@
 package letscode.api.repository;
 
-import javax.persistence.EntityManager;
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Repository;
@@ -32,5 +33,11 @@ public class UserRepository extends BaseRepository<UserEntity> {
 		query.setParameter("userId", AuthHelper.getUserLogged());
 
 		return getUnique(query);
+	}
+
+	public List<UserEntity> getUsers() {
+		var query = query("SELECT u FROM users u");
+
+		return query.getResultList();
 	}
 }

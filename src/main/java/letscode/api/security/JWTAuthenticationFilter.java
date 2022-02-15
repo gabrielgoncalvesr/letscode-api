@@ -28,7 +28,7 @@ import letscode.api.model.response.AuthModelResponse;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-	public static final int EXPIRATION_TOKEN = 600_000;
+	public static final int EXPIRATION_TOKEN = 600_000_000;
 
 	public static final String SECRET_TOKEN = "b6a007dfb313ae949823050a103fdc0073fc017ac58fbef8fd86b9125c834bb1d7b0dbb75a17d25473a2680a78507d9e";
 

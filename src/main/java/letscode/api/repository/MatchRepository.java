@@ -1,6 +1,5 @@
 package letscode.api.repository;
 
-import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Repository;

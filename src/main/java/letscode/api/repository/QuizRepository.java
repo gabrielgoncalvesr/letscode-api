@@ -2,7 +2,6 @@ package letscode.api.repository;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 
@@ -55,6 +54,4 @@ public class QuizRepository extends BaseRepository<QuizEntity> {
 
 		return getUnique(query);
 	}
-
-	// lista para remover os quis no endGame
 }

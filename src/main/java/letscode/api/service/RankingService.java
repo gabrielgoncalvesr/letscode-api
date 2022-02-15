@@ -23,13 +23,13 @@ public class RankingService {
 		var quizList = quizRepository.getQuizzesFromMatch(matchId);
 
 		int totalQuizzes = quizList.size();
-		int totalHits = quizList.stream().filter(x -> x.getCorrect()).toList().size();
+		int totalHits = quizList.stream().filter(x -> x.getCorrect() != null && x.getCorrect()).toList().size();
 
 		double score = (totalHits * 100) / totalQuizzes;
 
 		RankingEntity ranking = rankingRepository.getUserRanking(AuthHelper.getUserLogged());
 		if (ranking == null) {
-			ranking = new RankingEntity(AuthHelper.getUserLogged());
+			ranking = new RankingEntity(AuthHelper.getUserLogged(), score);
 		} else {
 			if (score > ranking.getScore()) {
 				ranking.setScore(score);

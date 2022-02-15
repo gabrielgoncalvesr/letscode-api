@@ -46,9 +46,9 @@ public class RankingEntity implements Serializable {
 	public RankingEntity() {
 	}
 
-	public RankingEntity(String userId) {
+	public RankingEntity(String userId, double score) {
 		this.userId = userId;
-		this.score = 0;
+		this.score = score;
 		this.createDate = new Date();
 		this.updateDate = null;
 	}

@@ -33,6 +33,15 @@ public class UserEntity implements Serializable {
 	@Column(nullable = false)
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
+	
+	public UserEntity() {
+	}
+	
+	public UserEntity(String name, String email, String password) {
+		this.name = name;
+		this.email = email;
+		this.password = password;
+	}
 
 	public String getUserId() {
 		return userId;

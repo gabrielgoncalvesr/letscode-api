@@ -3,9 +3,6 @@ package letscode.api.repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.transaction.Transactional;
-
-import org.springframework.stereotype.Repository;
 
 public class BaseRepository<T> {
 
@@ -15,7 +12,7 @@ public class BaseRepository<T> {
 	protected Class<T> classEntity;
 
 	public BaseRepository(Class<T> classEntity) {
-		//this.em = em;
+		// this.em = em;
 		this.classEntity = classEntity;
 	}
 

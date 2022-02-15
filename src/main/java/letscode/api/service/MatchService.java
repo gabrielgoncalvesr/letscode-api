@@ -66,17 +66,11 @@ public class MatchService {
 		if (correctAnswer) {
 			match.setScore(match.getScore() + 1);
 		} else {
-			match.setErrorAttempts(match.getScore() + 1);
+			match.setErrorAttempts(match.getErrorAttempts() + 1);
 		}
 
 		match.setUpdateDate(new Date());
 		matchRepository.save(match);
-
-		if (match.getErrorAttempts() == 3) {
-			endMatch();
-
-			throw new ResponseException(HttpStatus.BAD_REQUEST, "quiz.game_ended_by_error_attempt");
-		}
 
 		return match;
 	}

@@ -46,7 +46,7 @@ public class QuizService {
 
 	public QuizEntity getActiveQuiz() {
 		getActiveMatch();
-		
+
 		QuizEntity quiz = quizRepository.getActiveQuiz();
 		if (quiz == null) {
 			throw new ResponseException(HttpStatus.BAD_REQUEST, "quiz.quiz_not_started");
@@ -124,5 +124,14 @@ public class QuizService {
 		secondMovieModel.setMovieId(movieSet.get(1).getMovieId());
 
 		return new QuizModelResponse(newQuiz.getQuizId(), firstMovieModel, secondMovieModel);
+	}
+
+	public void endActiveQuiz() {
+		var quiz = quizRepository.getActiveQuiz();
+
+		quiz.setAnswered(true);
+		quiz.setUpdateDate(new Date());
+
+		quizRepository.save(quiz);
 	}
 }
