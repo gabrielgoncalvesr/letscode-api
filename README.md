@@ -10,4 +10,7 @@ Foi criado uma collection para o Postman, o arquivo postman_collection.json, bas
 Para acessar a documentação, basta inciar com o seguinte link, com a API rodando: http://localhost:8080/swagger-ui.html
 
 ### Acesso
-Existem por padrão 2 usuários configurados, sendo eles rafaela@letscode.com e isabella@letscode.com, utilizando a senha: "senha123" para ambos.
+Existem por padrão 2 usuários configurados, sendo eles rafaela@letscode.com e isabella@letscode.com, utilizando a senha: "senha123" para ambos
+
+### API IMDB
+A credencial de acesso para a API do IMDB, está dentro de application.properties, identificado como imdb_api.api_key, caso queira utilizar a própria chave, basta alterar o arquivo
