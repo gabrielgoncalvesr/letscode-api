@@ -33,8 +33,7 @@ public class JWTConfiguration extends WebSecurityConfigurerAdapter {
 
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/login").permitAll()
 				.antMatchers(HttpMethod.POST, "/users").permitAll().antMatchers("/h2-console/**").permitAll()
-				// .anyRequest().authenticated();
-				.anyRequest().permitAll();
+				.anyRequest().authenticated();
 
 		http.addFilter(new JWTAuthenticationFilter(authenticationManager()))
 				.addFilter(new JWTValidationFilter(authenticationManager()));
