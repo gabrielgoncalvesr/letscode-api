@@ -1,5 +1,7 @@
 package letscode.api.controller;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +48,7 @@ public class QuizController {
 	}
 
 	@PutMapping
-	public ResponseEntity<?> validateQuiz(@RequestBody ValidateQuizModelRequest model) {
+	public ResponseEntity<?> validateQuiz(@Valid @RequestBody ValidateQuizModelRequest model) {
 		boolean correctAnswer = quizService.validateQuiz(model.getOption());
 
 		var match = matchService.updateMatchScore(correctAnswer);

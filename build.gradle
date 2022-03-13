@@ -23,6 +23,7 @@ dependencies {
 	implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.19'
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: '2.6.3'
 	implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.6'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '2.6.3'
 	
 	runtimeOnly 'com.h2database:h2'
 	
